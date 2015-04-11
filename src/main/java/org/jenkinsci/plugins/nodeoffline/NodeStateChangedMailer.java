@@ -52,123 +52,124 @@ import org.kohsuke.accmod.restrictions.NoExternalUse;
  */
 public class NodeStateChangedMailer {
 
-    private final @Nonnull Mailer.DescriptorImpl mailerDescriptor;
-    private final @Nonnull Jenkins jenkins;
+	private final @Nonnull Mailer.DescriptorImpl mailerDescriptor;
+	private final @Nonnull Jenkins jenkins;
 
-    /*package*/ NodeStateChangedMailer(final @Nonnull Jenkins jenkins) {
+	NodeStateChangedMailer(final @Nonnull Jenkins jenkins) {
 
-        this.jenkins = jenkins;
-        this.mailerDescriptor = jenkins.getDescriptorByType(Mailer.DescriptorImpl.class);
-    }
+		this.jenkins = jenkins;
+		this.mailerDescriptor = jenkins
+				.getDescriptorByType(Mailer.DescriptorImpl.class);
+	}
 
-    /*package*/ @Nonnull User getDefaultInitiator() {
+	@Nonnull
+	User getDefaultInitiator() {
 
-        final User current = User.current();
-        return current != null
-                ? current
-                : User.getUnknown()
-        ;
-    }
+		final User current = User.current();
+		return current != null ? current : User.getUnknown();
+	}
 
-    /*package*/ @CheckForNull Plugin plugin(final String plugin) {
+	@CheckForNull
+	Plugin plugin(final String plugin) {
 
-        return jenkins.getPlugin(plugin);
-    }
+		return jenkins.getPlugin(plugin);
+	}
 
-    /*package*/ @Nonnull URL absoluteUrl(final @Nonnull String url) {
+	@Nonnull
+	URL absoluteUrl(final @Nonnull String url) {
 
-        try {
+		try {
 
-            return new URL(jenkins.getRootUrl() + url);
-        } catch (MalformedURLException ex) {
+			return new URL(jenkins.getRootUrl() + url);
+		} catch (MalformedURLException ex) {
 
-            throw new AssertionError(ex);
-        }
-    }
+			throw new AssertionError(ex);
+		}
+	}
 
-    /**
-     * Send the notification
-     *
-     * @return sent MimeMessage or null if notification was not sent
-     */
-    public MimeMessage send(final NodeStateChangedNotification notification) throws
-            MessagingException, AddressException
-    {
+	/**
+	 * Send the notification
+	 *
+	 * @return sent MimeMessage or null if notification was not sent
+	 */
+	public MimeMessage send(final NodeStateChangedNotification notification)
+			throws MessagingException, AddressException {
 
-        if (!notification.shouldNotify()) return null;
+		if (!notification.shouldNotify()){
+			return null;
+		}
 
-        final InternetAddress[] recipients = InternetAddress.parse(
-                notification.getRecipients()
-        );
+		final InternetAddress[] recipients = InternetAddress.parse(notification
+				.getRecipients());
 
-        if (recipients.length == 0) return null;
+		if (recipients.length == 0){
+			return null;
+		}
 
-        final MimeMessage msg = new MimeMessage(mailerDescriptor.createSession());
-        msg.setFrom(new InternetAddress(mailerDescriptor.getAdminAddress()));
-        final String replyToAddress = mailerDescriptor.getReplyToAddress();
-        if (replyToAddress != null) {
-            msg.setReplyTo(InternetAddress.parse(replyToAddress));
-        }
+		final MimeMessage msg = new MimeMessage(
+				this.mailerDescriptor.createSession());
+		msg.setFrom(new InternetAddress(this.mailerDescriptor.getAdminAddress()));
+		final String replyToAddress = this.mailerDescriptor.getReplyToAddress();
+		if (replyToAddress != null) {
+			msg.setReplyTo(InternetAddress.parse(replyToAddress));
+		}
 
-        msg.setSentDate(new Date());
-        msg.setSubject(notification.getMailSubject());
-        msg.setText(notification.getMailBody());
-        msg.setRecipients(Message.RecipientType.TO, recipients);
+		msg.setSentDate(new Date());
+		msg.setSubject(notification.getMailSubject());
+		msg.setText(notification.getMailBody());
+		msg.setRecipients(Message.RecipientType.TO, recipients);
 
-        send(msg);
+		send(msg);
 
-        return msg;
-    }
+		return msg;
+	}
 
-    @Restricted(NoExternalUse.class)
-    /*package*/ void send(final MimeMessage msg) throws MessagingException {
-        Transport.send(msg);
-    }
+	@Restricted(NoExternalUse.class)
+	void send(final MimeMessage msg) throws MessagingException {
+		Transport.send(msg);
+	}
 
-    /**
-     * Validate list of email addresses.
-     *
-     * @param addressesCandidate String representing list of addresses
-     * @return FormValidation representing state of validation
-     */
-    public static FormValidation validateMailAddresses(
-            final String addressesCandidate
-    ) {
+	/**
+	 * Validate list of email addresses.
+	 *
+	 * @param addressesCandidate
+	 *            String representing list of addresses
+	 * @return FormValidation representing state of validation
+	 */
+	public static FormValidation validateMailAddresses(
+			final String addressesCandidate) {
 
-        try {
+		try {
 
-            final InternetAddress[] addresses = InternetAddress.parse(
-                    addressesCandidate, false
-             );
+			final InternetAddress[] addresses = InternetAddress.parse(
+					addressesCandidate, false);
 
-            if (addresses.length == 0) {
+			if (addresses.length == 0) {
 
-                return FormValidation.warning("Empty address list provided");
-            }
+				return FormValidation.warning("Empty address list provided");
+			}
 
-            return validateAddresses(addresses);
-        } catch (AddressException ex) {
+			return validateAddresses(addresses);
+		} catch (AddressException ex) {
 
-            return FormValidation.error(
-                    "Invalid address provided: " + ex.getMessage ()
-            );
-        }
-    }
+			return FormValidation.error("Invalid address provided: "
+					+ ex.getMessage());
+		}
+	}
 
-    private static FormValidation validateAddresses(
-            final InternetAddress[] addresses
-    ) {
+	private static FormValidation validateAddresses(
+			final InternetAddress[] addresses) {
 
-        for (final InternetAddress address: addresses) {
+		for (final InternetAddress address : addresses) {
 
-            final String rawAddress = address.toString();
-            if (rawAddress.indexOf("@") > 0) continue;
+			final String rawAddress = address.toString();
+			if (rawAddress.indexOf("@") > 0)
+				continue;
 
-            return FormValidation.error(
-                    rawAddress + " does not look like an email address"
-            );
-        }
+			return FormValidation.error(rawAddress
+					+ " does not look like an email address");
+		}
 
-        return FormValidation.ok();
-    }
+		return FormValidation.ok();
+	}
 }

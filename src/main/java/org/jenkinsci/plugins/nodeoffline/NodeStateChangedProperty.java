@@ -81,7 +81,7 @@ public class NodeStateChangedProperty extends NodeProperty<Node> {
 		public FormValidation doCheckEmailRecipients(
 				@QueryParameter String value) {
 
-			return validateMailAddresses(value);
+			return NodeStateChangedMailer.validateMailAddresses(value);
 		}
 
 		@Override
@@ -90,42 +90,4 @@ public class NodeStateChangedProperty extends NodeProperty<Node> {
 		}
 	}
 
-	/**
-	 * Validate list of email addresses.
-	 *
-	 * @param addressesCandidate
-	 *            String representing list of addresses
-	 * @return FormValidation representing state of validation
-	 */
-	public static FormValidation validateMailAddresses(
-			final String addressesCandidate) {
-
-		try {
-			final InternetAddress[] addresses = InternetAddress.parse(
-					addressesCandidate, false);
-
-			if (addresses.length == 0) {
-				return FormValidation.warning("Empty address list provided");
-			}
-
-			return validateAddresses(addresses);
-		} catch (AddressException ex) {
-			return FormValidation.error("Invalid address provided: "
-					+ ex.getMessage());
-		}
-	}
-
-	private static FormValidation validateAddresses(
-			final InternetAddress[] addresses) {
-
-		for (final InternetAddress address : addresses) {
-			final String rawAddress = address.toString();
-			if (rawAddress.indexOf("@") > 0)
-				continue;
-
-			return FormValidation.error(rawAddress
-					+ " does not look like an email address");
-		}
-		return FormValidation.ok();
-	}
 }
