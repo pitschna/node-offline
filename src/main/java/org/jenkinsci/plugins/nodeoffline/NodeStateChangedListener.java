@@ -40,7 +40,6 @@ import jenkins.model.Jenkins;
  * Sends email do the list of recipients on following events: onOffline,
  * onOnline, onTemporarilyOffline and onTemporarilyOnline.
  *
- * @author ogondza
  */
 @Extension
 public class NodeStateChangedListener extends ComputerListener {
@@ -70,7 +69,7 @@ public class NodeStateChangedListener extends ComputerListener {
 		getNotification().online(false).subject("marked offline").send(c);
 	}
 
-	// @Override
+	@Override
 	public void onOffline(final Computer c, final OfflineCause cause) {
 
 		if (cause == null) {
@@ -143,7 +142,7 @@ public class NodeStateChangedListener extends ComputerListener {
 
 				final Computer computer = (Computer) o;
 
-				final NodeStateChangedProperty property = getWatcherNodeProperty(computer);
+				final NodeStateXChangedProperty property = getWatcherNodeProperty(computer);
 
 				if (property != null) {
 
@@ -157,7 +156,7 @@ public class NodeStateChangedListener extends ComputerListener {
 				new Notification(this).send();
 			}
 
-			private static NodeStateChangedProperty getWatcherNodeProperty(
+			private static NodeStateXChangedProperty getWatcherNodeProperty(
 					final Computer computer) {
 
 				final Node node = computer.getNode();
@@ -167,7 +166,7 @@ public class NodeStateChangedListener extends ComputerListener {
 				final DescribableList<NodeProperty<?>, NodePropertyDescriptor> properties = (node instanceof Jenkins) ? ((Jenkins) node)
 						.getGlobalNodeProperties() : node.getNodeProperties();
 
-				return properties.get(NodeStateChangedProperty.class);
+				return properties.get(NodeStateXChangedProperty.class);
 			}
 		}
 	}

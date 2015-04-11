@@ -25,6 +25,7 @@ package org.jenkinsci.plugins.nodeoffline;
 
 import hudson.model.User;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -137,14 +138,11 @@ public abstract class NodeStateChangedNotification {
 		try {
 			final MimeMessage msg = mailer.send(this);
 			if (msg != null) {
-
 				log(NODE_OFFLINE_PLUGING + "notified: " + this.getSubject());
 			}
 		} catch (AddressException ex) {
-
 			log(NODE_OFFLINE_PLUGING + "unable to parse address", ex);
 		} catch (MessagingException ex) {
-
 			log(NODE_OFFLINE_PLUGING + "unable to notify", ex);
 		}
 	}

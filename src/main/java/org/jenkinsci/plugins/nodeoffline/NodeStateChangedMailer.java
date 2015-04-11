@@ -108,7 +108,8 @@ public class NodeStateChangedMailer {
 
 		final MimeMessage msg = new MimeMessage(
 				this.mailerDescriptor.createSession());
-		msg.setFrom(new InternetAddress(this.mailerDescriptor.getAdminAddress()));
+		//TODO find a way to set the from address 
+		msg.setFrom(new InternetAddress("jenkins@yourservice.com"));
 		final String replyToAddress = this.mailerDescriptor.getReplyToAddress();
 		if (replyToAddress != null) {
 			msg.setReplyTo(InternetAddress.parse(replyToAddress));

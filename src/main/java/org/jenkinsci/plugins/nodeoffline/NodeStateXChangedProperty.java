@@ -23,9 +23,6 @@
  */
 package org.jenkinsci.plugins.nodeoffline;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-
 import hudson.Extension;
 import hudson.model.Node;
 import hudson.slaves.NodeProperty;
@@ -41,17 +38,22 @@ import org.kohsuke.stapler.StaplerRequest;
  * Configure list of email addresses as a property of a Node to be used for
  * notification purposes.
  */
-public class NodeStateChangedProperty extends NodeProperty<Node> {
+public class NodeStateXChangedProperty extends NodeProperty<Node> {
 
 	private final String emailRecipients;
 
 	@DataBoundConstructor
-	public NodeStateChangedProperty(final String emailRecipients) {
+	public NodeStateXChangedProperty(final String emailRecipients) {
 		this.emailRecipients = emailRecipients;
 	}
 
 	public String getEmailRecipients() {
 		return emailRecipients;
+	}
+
+	@Override
+	public NodePropertyDescriptor getDescriptor() {
+		return new DescriptorImpl();
 	}
 
 	@Extension
@@ -75,12 +77,11 @@ public class NodeStateChangedProperty extends NodeProperty<Node> {
 			if (emailRecipients.isEmpty())
 				return null;
 
-			return new NodeStateChangedProperty(emailRecipients);
+			return new NodeStateXChangedProperty(emailRecipients);
 		}
 
 		public FormValidation doCheckEmailRecipients(
 				@QueryParameter String value) {
-
 			return NodeStateChangedMailer.validateMailAddresses(value);
 		}
 
